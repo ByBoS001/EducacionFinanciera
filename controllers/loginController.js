@@ -1,5 +1,5 @@
 const User = require('../models/userModel');
-const Login = require('../models/categoryModel');
+const Login = require('../models/loginModel');
 
 // Crear un nuevo usuario
 const createUser = async (req, res) => {
@@ -16,6 +16,7 @@ const createUser = async (req, res) => {
 const jwt = require('jsonwebtoken')
 const bcryptjs = require('bcryptjs')
 const conexion = require('../database/db')
+
 const {promisify} = require('util')
 
 //procedimiento para registrarnos
