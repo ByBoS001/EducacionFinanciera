@@ -10,10 +10,30 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  password: {
+    type: String,
+    required: true,
+    min: 6,
+    trim: true,
+  },
   creation_date: {
     type: Date,
     default: Date.now,
     required: true
+  },
+    role: {
+      type: String,
+      default: 'user',
+  },
+  verificationToken: {
+    type: String,
+  },
+  resetToken: {
+    type: String,
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false,
   },
   
   roles: [{  // Relación muchos a muchos con Category (roles del usuario)
@@ -22,6 +42,6 @@ const userSchema = new mongoose.Schema({
   }]
 });
 
-const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+
+module.exports = mongoose.model('User', userSchema);

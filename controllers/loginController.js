@@ -1,130 +1,42 @@
 const User = require('../models/userModel');
 const Login = require('../models/loginModel');
 
-// Crear un nuevo usuario
-const createUser = async (req, res) => {
-  try {
-    const { name, email, creation_date } = req.body;
-    const newUser = new User({ name, email, creation_date });
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 
-const jwt = require('jsonwebtoken')
-const bcryptjs = require('bcryptjs')
-const conexion = require('../database/db')
-
-const {promisify} = require('util')
-
-//procedimiento para registrarnos
-exports.register = async (req, res)=>{    
+router.post('/', async (req, res) => {
     try {
-        const name = req.body.name
-        const user = req.body.user
-        const pass = req.body.pass
-        let passHash = await bcryptjs.hash(pass, 8)    
-        //console.log(passHash)   
-        conexion.query('INSERT INTO users SET ?', {user:user, name: name, pass:passHash}, (error, results)=>{
-            if(error){console.log(error)}
-            res.redirect('/')
-        })
-    } catch (error) {
-        console.log(error)
-    }       
-}
-
-exports.login = async (req, res)=>{
-    try {
-        const user = req.body.user
-        const pass = req.body.pass        
-
-        if(!user || !pass ){
-            res.render('login',{
-                alert:true,
-                alertTitle: "Advertencia",
-                alertMessage: "Ingrese un usuario y password",
-                alertIcon:'info',
-                showConfirmButton: true,
-                timer: false,
-                ruta: 'login'
-            })
-        }else{
-            conexion.query('SELECT * FROM users WHERE user = ?', [user], async (error, results)=>{
-                if( results.length == 0 || ! (await bcryptjs.compare(pass, results[0].pass)) ){
-                    res.render('login', {
-                        alert: true,
-                        alertTitle: "Error",
-                        alertMessage: "Usuario y/o Password incorrectas",
-                        alertIcon:'error',
-                        showConfirmButton: true,
-                        timer: false,
-                        ruta: 'login'    
-                    })
-                }else{
-                    //inicio de sesión OK
-                    const id = results[0].id
-                    const token = jwt.sign({id:id}, process.env.JWT_SECRETO, {
-                        expiresIn: process.env.JWT_TIEMPO_EXPIRA
-                    })
-                    //generamos el token SIN fecha de expiracion
-                   //const token = jwt.sign({id: id}, process.env.JWT_SECRETO)
-                   console.log("TOKEN: "+token+" para el USUARIO : "+user)
-
-                   const cookiesOptions = {
-                        expires: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-                        httpOnly: true
-                   }
-                   res.cookie('jwt', token, cookiesOptions)
-                   res.render('login', {
-                        alert: true,
-                        alertTitle: "Conexión exitosa",
-                        alertMessage: "¡LOGIN CORRECTO!",
-                        alertIcon:'success',
-                        showConfirmButton: false,
-                        timer: 800,
-                        ruta: ''
-                   })
-                }
-            })
+        // Validaciones
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return sendResponse(res, 404, {}, 'Correo o contraseña incorrectos.');
         }
-    } catch (error) {
-        console.log(error)
-    }
-}
 
-exports.isAuthenticated = async (req, res, next)=>{
-    if (req.cookies.jwt) {
-        try {
-            const decodificada = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETO)
-            conexion.query('SELECT * FROM users WHERE id = ?', [decodificada.id], (error, results)=>{
-                if(!results){return next()}
-                req.user = results[0]
-                return next()
-            })
-        } catch (error) {
-            console.log(error)
-            return next()
+        if (user.isBlocked) {
+            return sendResponse(res, 401, {}, 'El usuario está bloqueado. No puede iniciar sesión');
         }
-    }else{
-        res.redirect('/login')        
+
+        if (!user.isVerified) {
+            return sendResponse(res, 401, {}, 'El usuario no ha verificado su cuenta. No puede iniciar sesión');
+        }
+
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
+        if (!validPassword) {
+            return sendResponse(res, 400, {}, 'Correo o contraseña incorrectos.');
+        }
+
+        const tokenExpirationSeconds = 3600; 
+        const token = jwt.sign(
+            { _id: user._id },
+            process.env.TOKEN_SECRET,
+            { expiresIn: tokenExpirationSeconds }
+        );
+
+        const expirationDate = new Date(new Date().getTime() + tokenExpirationSeconds * 1000);
+
+        sendResponse(res, 200, { token, expiration: expirationDate.toISOString() }, 'Inicio de sesión exitoso');
+    } catch (error) {
+        console.error(error);
+        sendResponse(res, 500, {}, 'Error interno del servidor');
     }
-}
+});
 
-exports.logout = (req, res)=>{
-    res.clearCookie('jwt')   
-    return res.redirect('/')
-}
-
-
-module.exports = {
-  createUser,
-  getAllUsers,
-  getUserById,
-  updateUserById,
-  deleteUserById,
-  addRolesToUser,
-  removeRoleFromUser
-};
+module.exports = router;
