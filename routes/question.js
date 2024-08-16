@@ -8,7 +8,7 @@ const {
   deleteQuestionById
 } = require('../controllers/questionController');
 
-router.post('/create-question', createQuestion);
+router.post('/createquestion', createQuestion);
 router.post('/get-all-questions', getAllQuestions);
 router.post('/get-question-by-id', getQuestionById);
 router.post('/update-question-by-id', updateQuestionById);
