@@ -8,9 +8,14 @@ const {
   deleteUserById,
   addRolesToUser,
   removeRoleFromUser
-} = require('../controllers/loginController');
+} = require('../controllers/userController');
 
-router.post('/login', createUser);
-
+router.post('/create-user', createUser);
+router.post('/get-all-users', getAllUsers);
+router.post('/get-user-by-id', getUserById);
+router.post('/update-user-by-id', updateUserById);
+router.post('/delete-user-by-id', deleteUserById);
+router.post('/add-roles', addRolesToUser);
+router.post('/remove-role', removeRoleFromUser);
 
 module.exports = router;
