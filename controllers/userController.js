@@ -136,5 +136,7 @@ module.exports = {
   updateUserById,
   deleteUserById,
   addRolesToUser,
-  removeRoleFromUser
+  removeRoleFromUser,
+  loginUser
 };
+  
