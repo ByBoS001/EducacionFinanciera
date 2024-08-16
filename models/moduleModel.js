@@ -17,11 +17,7 @@ const moduleSchema = new mongoose.Schema({
   quizzes: {  // Optional
     type: String,
   },
-  lesson: {  // Foreign key reference to the Lesson model
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lesson',
-    required: true
-  }
+  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }]
 });
 
 const Module = mongoose.model('Module', moduleSchema);

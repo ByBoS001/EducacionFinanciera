@@ -3,8 +3,8 @@ const Lesson = require('../models/lessonModel');
 // Create a new lesson
 const createLesson = async (req, res) => {
   try {
-    const { name } = req.body;
-    const newLesson = new Lesson({ name });
+    const { name, module } = req.body;
+    const newLesson = new Lesson({ name, module });
     const savedLesson = await newLesson.save();
     res.status(201).json(savedLesson);
   } catch (error) {
@@ -12,21 +12,21 @@ const createLesson = async (req, res) => {
   }
 };
 
-// Get all lessons
+// Get all lessons with populated module
 const getAllLessons = async (req, res) => {
   try {
-    const lessons = await Lesson.find();
+    const lessons = await Lesson.find().populate('module'); // Populate the 'module' field
     res.status(200).json(lessons);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Get a lesson by ID
+// Get a lesson by ID with populated module
 const getLessonById = async (req, res) => {
   try {
-    const { id } = req.body;
-    const lesson = await Lesson.findById(id);
+    const { id } = req.params; // Use req.params for URL parameters
+    const lesson = await Lesson.findById(id).populate('module');
     if (!lesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
@@ -39,8 +39,8 @@ const getLessonById = async (req, res) => {
 // Update a lesson by ID
 const updateLessonById = async (req, res) => {
   try {
-    const { id, name } = req.body;
-    const updatedLesson = await Lesson.findByIdAndUpdate(id, { name }, { new: true });
+    const { id, name, module } = req.body;
+    const updatedLesson = await Lesson.findByIdAndUpdate(id, { name, module }, { new: true }).populate('module');
     if (!updatedLesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }

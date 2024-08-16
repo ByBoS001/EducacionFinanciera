@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Conectar a la base de datos
-mongoose.connect('mongodb://localhost:27017');
+mongoose.connect('mongodb://localhost:27017/EducacionFinanciera');
 
 // Manejar eventos de conexión
 const db = mongoose.connection;
