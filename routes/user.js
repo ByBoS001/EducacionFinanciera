@@ -11,7 +11,7 @@ const {
   loginUser
 } = require('../controllers/userController');
 
-router.post('/create-user', createUser);
+router.post('/register', createUser);
 router.post('/get-all-users', getAllUsers);
 router.post('/get-user-by-id', getUserById);
 router.post('/update-user-by-id', updateUserById);
