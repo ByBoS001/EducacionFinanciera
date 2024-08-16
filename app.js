@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const cors = require('cors');
 
 //database
 const connectToDatabase = require('./conection/mongo');
@@ -24,7 +25,7 @@ const reviewRatingRoutes = require('./routes/reviewRating');
 const forumRoutes = require('./routes/forum');
 const commentRoutes = require('./routes/comment');
 const assessmentRoutes = require('./routes/assessment');
-
+const recuperacion = require('./routes/recuperacion');
 
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
@@ -32,6 +33,7 @@ var indexRouter = require('./routes/index');
 
 
 var app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -62,7 +64,7 @@ app.use('/reviewRatings', reviewRatingRoutes);
 app.use('/forums', forumRoutes);
 app.use('/comments', commentRoutes);
 app.use('/assessments', assessmentRoutes);
-
+app.use('/recuperacion', recuperacion);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

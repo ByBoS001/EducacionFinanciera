@@ -1,12 +1,36 @@
 const Module = require('../models/moduleModel');
+const Lesson = require('../models/lessonModel');
+const Question = require('../models/questionModel'); // Asegúrate de importar este modelo si necesitas usarlo
+const Answer = require('../models/answerModel'); // Asegúrate de que este modelo esté correctamente definido e importado
 
 // Create a new module
 const createModule = async (req, res) => {
   try {
-    const { name, video, text, code, quizzes, lesson } = req.body;
-    const newModule = new Module({ name, video, text, code, quizzes, lesson });
+    const { name, video, text, code, quizzes, lessons } = req.body;
+
+    // Verifica si todas las lecciones proporcionadas existen
+    if (Array.isArray(lessons)) {
+      const existingLessons = await Lesson.find({ '_id': { $in: lessons } });
+      if (existingLessons.length !== lessons.length) {
+        return res.status(400).json({ error: 'Some lesson IDs are invalid' });
+      }
+    }
+
+    const newModule = new Module({ name, video, text, code, quizzes, lessons });
     const savedModule = await newModule.save();
-    res.status(201).json(savedModule);
+
+    // Obtener el módulo guardado y hacer populate
+    const populatedModule = await Module.findById(savedModule._id)
+      .populate({
+        path: 'lessons',
+        populate: {
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
+        },
+      });
+    res.status(201).json(populatedModule);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -15,7 +39,16 @@ const createModule = async (req, res) => {
 // Get all modules
 const getAllModules = async (req, res) => {
   try {
-    const modules = await Module.find().populate('lesson');
+    const modules = await Module.find()
+      .populate({
+        path: 'lessons',
+        populate: {
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
+        },
+      });
     res.status(200).json(modules);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -25,8 +58,17 @@ const getAllModules = async (req, res) => {
 // Get a module by ID
 const getModuleById = async (req, res) => {
   try {
-    const { id } = req.body;
-    const module = await Module.findById(id).populate('lesson');
+    const { id } = req.params;
+    const module = await Module.findById(id)
+      .populate({
+        path: 'lessons',
+        populate: {
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
+        },
+      });
     if (!module) {
       return res.status(404).json({ error: 'Module not found' });
     }
@@ -39,8 +81,28 @@ const getModuleById = async (req, res) => {
 // Update a module by ID
 const updateModuleById = async (req, res) => {
   try {
-    const { id, name, video, text, code, quizzes, lesson } = req.body;
-    const updatedModule = await Module.findByIdAndUpdate(id, { name, video, text, code, quizzes, lesson }, { new: true }).populate('lesson');
+    const { id, name, video, text, code, quizzes, lessons } = req.body;
+
+    // Verifica si todas las lecciones proporcionadas existen
+    if (lessons) {
+      if (Array.isArray(lessons)) {
+        const existingLessons = await Lesson.find({ '_id': { $in: lessons } });
+        if (existingLessons.length !== lessons.length) {
+          return res.status(400).json({ error: 'Some lesson IDs are invalid' });
+        }
+      }
+    }
+
+    const updatedModule = await Module.findByIdAndUpdate(id, { name, video, text, code, quizzes, lessons }, { new: true })
+      .populate({
+        path: 'lessons',
+        populate: {
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
+        },
+      });
     if (!updatedModule) {
       return res.status(404).json({ error: 'Module not found' });
     }
@@ -64,10 +126,14 @@ const deleteModuleById = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   createModule,
   getAllModules,
   getModuleById,
   updateModuleById,
-  deleteModuleById
+  deleteModuleById,
+
 };
+
