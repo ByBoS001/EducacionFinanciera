@@ -16,23 +16,49 @@ const connectToDatabase = async () => {
 module.exports = connectToDatabase;
 
 
+const nodemailer = require("nodemailer");
+console.log("Nodemailer importado: ", nodemailer); 
 
-/**
+const transportLisa = {
+  tls: { rejectUnauthorized: false },
+  host: "smtp.gmail.com",
+  secure: true,
+  auth: {
+    user: "fintechnc@gmail.com",
+    pass: "bplwnzddzukclgpm"
+  }
+};
 
-const mongoose = require('mongoose');
-require('dotenv').config();
+async function enviarCorreoModuloFinalizado(destinatario, asunto, mensaje) {
+  const transporter = nodemailer.createTransport(transportLisa);
 
-// Conexión a Base de datos
-const uri = mongodb+srv://${process.env.USER_MONGO}:${process.env.PASSWORD}@denuncias-back.eugamd3.mongodb.net/barrios;
-// console.log('PASS',process.env.PASSWORD);
-// console.log('USEERNAME MONGO',process.env.USER_MONGO);
+  const message = {
+    from: `"LISA" <${transportLisa.auth.user}>`, // Dirección del remitente
+    to: destinatario,
+    subject: asunto,
+    text: mensaje,
+  };
 
+  try {
+    const email = await transporter.sendMail(message);
+    console.log('Correo enviado exitosamente:', email);
+    return email;
+  } catch (err) {
+    console.error('Error enviando correo:', err);
+    throw err;
+  }
+}
 
-mongoose
-    .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Se estableció conexión con la base de datos'))
-    .catch((e) => console.log('Error de conexión a la base de datos:', e));
+(async () => {
+  try {
+    const info = await enviarCorreoModuloFinalizado(
+      "marton2307@gmail.com",
+      "¡Módulo finalizado exitosamente!",
+      "Felicitaciones, has completado el módulo satisfactoriamente."
+    );
+    console.log('Correo enviado exitosamente:', info);
+  } catch (error) {
+    console.error('Error enviando correo:', error);
+  }
+})();
 
-exports.mongoose = mongoose;
- * 
- */
