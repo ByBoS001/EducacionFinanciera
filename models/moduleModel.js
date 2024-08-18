@@ -1,26 +1,38 @@
 const mongoose = require('mongoose');
 
-const moduleSchema = new mongoose.Schema({
-  name: {  
+const userSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: true
   },
-  video: {  // Optional
+  email: {
     type: String,
+    required: true,
+    unique: true
   },
-  text: {  // Optional
+  password: {
     type: String,
+    required: true,
+    trim: true
+  },  
+  creation_date: {
+    type: Date,
+    default: Date.now,
+    required: true
   },
-  code: {  // Optional
-    type: String,
+  completedModules: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Module'
+  }],
+  lastLoginDate: {
+    type: Date
   },
-  quizzes: {  // Optional
-    type: String,
-  },
-  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }]
+  roles: [{  // Relación muchos a muchos con Category (roles del usuario)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+  }]
 });
 
-const Module = mongoose.model('Module', moduleSchema);
+const User = mongoose.model('User', userSchema);
 
-module.exports = Module;
-
+module.exports = User;

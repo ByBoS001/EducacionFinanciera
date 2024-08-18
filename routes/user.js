@@ -1,4 +1,6 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
+
 const router = express.Router();
 const {
   createUser,
@@ -13,7 +15,7 @@ const {
 
 router.post('/register', createUser);
 router.post('/get-all-users', getAllUsers);
-router.post('/get-user-by-id', getUserById);
+router.get('/user/:id', getUserById);
 router.post('/update-user-by-id', updateUserById);
 router.post('/delete-user-by-id', deleteUserById);
 router.post('/add-roles', addRolesToUser);

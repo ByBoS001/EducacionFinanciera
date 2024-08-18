@@ -26,6 +26,7 @@ const forumRoutes = require('./routes/forum');
 const commentRoutes = require('./routes/comment');
 const assessmentRoutes = require('./routes/assessment');
 const recuperacion = require('./routes/recuperacion');
+const loginRoute = require('./routes/login');
 
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
@@ -34,7 +35,7 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 app.use(cors());
-
+connectToDatabase();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -65,7 +66,9 @@ app.use('/forums', forumRoutes);
 app.use('/comments', commentRoutes);
 app.use('/assessments', assessmentRoutes);
 app.use('/recuperacion', recuperacion);
+app.use('/login', loginRoute);
 
+//app.use('/auth', loginRoute); 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

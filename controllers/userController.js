@@ -1,8 +1,7 @@
-const User = require('../models/userModel');
-const Category = require('../models/categoryModel');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-
+const User = require("../models/userModel");
+const Category = require("../models/categoryModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Crear un nuevo usuario
 const createUser = async (req, res) => {
@@ -10,7 +9,9 @@ const createUser = async (req, res) => {
     // Verificar si el email ya existe en la base de datos
     const isEmailExist = await User.findOne({ email: req.body.email });
     if (isEmailExist) {
-      return res.status(400).json({ message: 'Este email ya ha sido registrado.' });
+      return res
+        .status(400)
+        .json({ message: "Este email ya ha sido registrado." });
     }
 
     // Crear hash de la contraseña
@@ -26,13 +27,16 @@ const createUser = async (req, res) => {
 
     // Guardar el usuario en la base de datos
     const savedUser = await user.save();
-    return res.status(200).json({ user: savedUser, message: 'Usuario registrado exitosamente.' });
+    return res
+      .status(200)
+      .json({ user: savedUser, message: "Usuario registrado exitosamente." });
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: 'Error al guardar el usuario en la base de datos' });
+    return res
+      .status(500)
+      .json({ message: "Error al guardar el usuario en la base de datos" });
   }
 };
-
 
 // Leer todos los usuarios
 const getAllUsers = async (req, res) => {
@@ -47,11 +51,15 @@ const getAllUsers = async (req, res) => {
 // Leer un usuario por ID
 const getUserById = async (req, res) => {
   try {
-    const { id } = req.body;
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: "ID is required" });
     }
+    const user = await User.findById(id).populate("completedModules");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    user.completedModules = user.completedModules || [];
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -61,10 +69,14 @@ const getUserById = async (req, res) => {
 // Actualizar un usuario por ID
 const updateUserById = async (req, res) => {
   try {
-    const { id, name, email, creation_date } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(id, { name, email, creation_date }, { new: true });
+    const { id, name, email, creation_date } = req.body; // Datos en el cuerpo
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, creation_date },
+      { new: true }
+    );
     if (!updatedUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -75,12 +87,12 @@ const updateUserById = async (req, res) => {
 // Eliminar un usuario por ID
 const deleteUserById = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.body; // ID en el cuerpo
     const deletedUser = await User.findByIdAndDelete(id);
     if (!deletedUser) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -92,7 +104,7 @@ const addRolesToUser = async (req, res) => {
     const { userId, roles } = req.body; // roles es un array de IDs
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
     user.roles = [...new Set([...user.roles, ...roles])]; // Evita duplicados
     await user.save();
@@ -108,9 +120,9 @@ const removeRoleFromUser = async (req, res) => {
     const { userId, roleId } = req.body;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
-    user.roles = user.roles.filter(role => role.toString() !== roleId);
+    user.roles = user.roles.filter((role) => role.toString() !== roleId);
     await user.save();
     res.status(200).json(user);
   } catch (error) {
@@ -123,32 +135,40 @@ const loginUser = async (req, res) => {
     // Validaciones
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(404).json({ message: 'Correo o contraseña incorrectos.' });
+      return res
+        .status(404)
+        .json({ message: "Correo o contraseña incorrectos." });
     }
 
-    const validPassword = await bcrypt.compare(req.body.password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Correo o contraseña incorrectos.' });
-    }
-
-    const tokenSecret = 'secret';  
-    const tokenExpirationSeconds = 3600;
-    const token = jwt.sign(
-      { _id: user._id },
-      tokenSecret,
-      { expiresIn: tokenExpirationSeconds }
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
     );
+    if (!validPassword) {
+      return res
+        .status(400)
+        .json({ message: "Correo o contraseña incorrectos." });
+    }
 
-    const expirationDate = new Date(new Date().getTime() + tokenExpirationSeconds * 1000);
-    res.status(200).json({ token: token, expiration: expirationDate.toISOString(), message: 'Inicio de sesión exitoso' });
+    const tokenSecret = "secret";
+    const tokenExpirationSeconds = 3600;
+    const token = jwt.sign({ _id: user._id }, tokenSecret, {
+      expiresIn: tokenExpirationSeconds,
+    });
+
+    const expirationDate = new Date(
+      new Date().getTime() + tokenExpirationSeconds * 1000
+    );
+    res.status(200).json({
+      token: token,
+      expiration: expirationDate.toISOString(),
+      message: "Inicio de sesión exitoso",
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };
-
-
-
 
 module.exports = {
   createUser,
@@ -158,5 +178,5 @@ module.exports = {
   deleteUserById,
   addRolesToUser,
   removeRoleFromUser,
-  loginUser
+  loginUser,
 };

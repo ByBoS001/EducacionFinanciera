@@ -1,14 +1,20 @@
 const mongoose = require('mongoose');
 
-// Conectar a la base de datos
-mongoose.connect('mongodb://localhost:27017/EducacionFinanciera');
+const connectToDatabase = async () => {
+  try {
+    await mongoose.connect('mongodb://localhost:27017/EducacionFinanciera', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('¡Conexión a la base de datos establecida correctamente!');
+  } catch (error) {
+    console.error('Error de conexión a la base de datos:', error);
+    process.exit(1); // Salir del proceso con error
+  }
+};
 
-// Manejar eventos de conexión
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Error de conexión a la base de datos:'));
-db.once('open', () => {
-  console.log('¡Conexión a la base de datos establecida correctamente!');
-});
+module.exports = connectToDatabase;
+
 
 
 /**
