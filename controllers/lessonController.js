@@ -14,13 +14,24 @@ const createLesson = async (req, res) => {
 
 // Get all lessons with populated module
 const getAllLessons = async (req, res) => {
+  const { id } = req.body; // Obtener el ID del módulo desde el body de la solicitud
   try {
-    const lessons = await Lesson.find().populate('module'); // Populate the 'module' field
+    if (!moduleId) {
+      return res.status(400).json({ message: "Module ID is required" });
+    }
+
+    // Filtrar las lecciones que pertenecen al módulo especificado
+    const lessons = await Lesson.find({ module: id }).populate('module'); // Populate the 'module' field
+    if (!lessons || lessons.length === 0) {
+      return res.status(404).json({ message: "No lessons found for this module" });
+    }
     res.status(200).json(lessons);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // Get a lesson by ID with populated module
 const getLessonById = async (req, res) => {
@@ -35,6 +46,7 @@ const getLessonById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update a lesson by ID
 const updateLessonById = async (req, res) => {
