@@ -37,6 +37,27 @@ const getQuestionById = async (req, res) => {
   }
 };
 
+const getQuestionsByLessonId = async (req, res) => {
+  const { lessonId } = req.body;
+
+  try {
+    if (!lessonId) {
+      return res.status(400).json({ error: 'Lesson ID is required' });
+    }
+
+    // Buscar todas las preguntas relacionadas con la lección especificada
+    const questions = await Question.find({ lesson: lessonId });
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ message: 'No questions found for this lesson' });
+    }
+
+    res.status(200).json(questions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Update a question by ID
 const updateQuestionById = async (req, res) => {
   try {
@@ -70,5 +91,6 @@ module.exports = {
   getAllQuestions,
   getQuestionById,
   updateQuestionById,
-  deleteQuestionById
+  deleteQuestionById,
+  getQuestionsByLessonId
 };

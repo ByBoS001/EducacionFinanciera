@@ -9,8 +9,8 @@ const {
 } = require('../controllers/lessonController');
 
 router.post('/createlesson', createLesson);
-router.post('/get-all-lessons', getLessonsByModuleId);
-router.post('/lesson/:id', getAllLessons);
+router.post('/get-all-lessons', getAllLessons);
+router.post('/lesson/:id', getLessonsByModuleId);
 router.post('/update-lesson-by-id', updateLessonById);
 router.post('/delete-lesson-by-id', deleteLessonById);
 
