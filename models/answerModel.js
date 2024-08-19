@@ -1,21 +1,22 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const answerSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
+const answerSchema = new mongoose.Schema(
+  {
+    text: {
+      type: String,
+      required: true,
+    },
+    isCorrect: {
+      type: Boolean,
+      required: true,
+    },
+    question: { type: mongoose.Schema.Types.ObjectId, ref: "Question" }, // Referencia al modelo Question
   },
-  isCorrect: {  // Indicates if the answer is correct
-    type: Boolean,
-    required: true
-  },
-  question: {  // Foreign key reference to the Question model
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question',
-    required: true
+  {
+    strictPopulate: false, // Permite poblar campos que no están en el esquema
   }
-});
+);
 
-const Answer = mongoose.model('Answer', answerSchema);
+const Answer = mongoose.model("Answer", answerSchema);
 
 module.exports = Answer;

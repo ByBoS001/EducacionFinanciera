@@ -1,16 +1,19 @@
-  const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-  const questionSchema = new mongoose.Schema({
-    text: {  // Text of the question
+const questionSchema = new mongoose.Schema(
+  {
+    text: {
       type: String,
-      required: true
+      required: true,
     },
-    lessons: [{  
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Lesson'
-    }]
-  });
+    answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }], // Referencia al modelo Answer
+    lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }, // Referencia al modelo Lesson
+  },
+  {
+    strictPopulate: false, // Permite poblar campos que no están en el esquema
+  }
+);
 
-  const Question = mongoose.model('Question', questionSchema);
+const Question = mongoose.model("Question", questionSchema);
 
-  module.exports = Question;
+module.exports = Question;
