@@ -14,9 +14,9 @@ const createLesson = async (req, res) => {
 
 // Get all lessons with populated module
 const getAllLessons = async (req, res) => {
-  const { id } = req.body; // Obtener el ID del módulo desde el body de la solicitud
+  const {id } = req.body; // Obtener el ID del módulo desde el body de la solicitud
   try {
-    if (!moduleId) {
+    if (!id) {
       return res.status(400).json({ message: "Module ID is required" });
     }
 
@@ -34,14 +34,27 @@ const getAllLessons = async (req, res) => {
 
 
 // Get a lesson by ID with populated module
-const getLessonById = async (req, res) => {
+// Obtener todas las lecciones de un módulo específico
+const getLessonsByModuleId = async (req, res) => {
   try {
-    const { id } = req.params; // Use req.params for URL parameters
-    const lesson = await Lesson.findById(id).populate('module');
-    if (!lesson) {
-      return res.status(404).json({ error: 'Lesson not found' });
+    // Imprime el cuerpo de la solicitud para depuración
+    console.log('Request body:', req.body);
+
+    // Extrae el ID del cuerpo de la solicitud
+    const { id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Module ID is required" });
     }
-    res.status(200).json(lesson);
+
+    // Buscar las lecciones que pertenecen al módulo específico
+    const lessons = await Lesson.find({ module: id }).populate('module');
+
+    if (!lessons || lessons.length === 0) {
+      return res.status(404).json({ message: "No lessons found for this module" });
+    }
+
+    res.status(200).json(lessons);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -79,7 +92,7 @@ const deleteLessonById = async (req, res) => {
 module.exports = {
   createLesson,
   getAllLessons,
-  getLessonById,
+  getLessonsByModuleId,
   updateLessonById,
   deleteLessonById
 };
