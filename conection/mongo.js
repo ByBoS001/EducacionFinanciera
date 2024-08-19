@@ -1,16 +1,18 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+require('dotenv').config(); // Asegúrate de tener dotenv instalado para usar variables de entorno
 
+// Definir la función de conexión a la base de datos
 const connectToDatabase = async () => {
-  try {
-    mongoose.set("strictPopulate", false);
-    await mongoose.connect("mongodb://localhost:27017/EducacionFinanciera");
-    console.log("¡Conexión a la base de datos establecida correctamente!");
-  } catch (error) {
-    console.error("Error de conexión a la base de datos:", error);
-    process.exit(1); // Salir del proceso con error
-  }
+    try {
+        const dbURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/educacionfinanciera'; // Usa la variable de entorno o la URI local por defecto
+        await mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log('¡Conexión a la base de datos establecida correctamente!');
+    } catch (error) {
+        console.error('Error de conexión a la base de datos:', error);
+    }
 };
 
+// Exportar la función para usarla en otros archivos
 module.exports = connectToDatabase;
 
 const nodemailer = require("nodemailer");
@@ -58,3 +60,4 @@ async function enviarCorreoModuloFinalizado(destinatario, asunto, mensaje) {
     console.error("Error enviando correo:", error);
   }
 })();
+
