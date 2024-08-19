@@ -1,7 +1,7 @@
-const Module = require("../models/moduleModel");
-const Lesson = require("../models/lessonModel");
-const Question = require("../models/questionModel"); // Asegúrate de importar este modelo si necesitas usarlo
-const Answer = require("../models/answerModel"); // Asegúrate de que este modelo esté correctamente definido e importado
+const Module = require('../models/moduleModel');
+const Lesson = require('../models/lessonModel');
+const Question = require('../models/questionModel'); // Asegúrate de importar este modelo si necesitas usarlo
+const Answer = require('../models/answerModel'); // Asegúrate de que este modelo esté correctamente definido e importado
 
 // Create a new module
 const createModule = async (req, res) => {
@@ -10,9 +10,9 @@ const createModule = async (req, res) => {
 
     // Verifica si todas las lecciones proporcionadas existen
     if (Array.isArray(lessons)) {
-      const existingLessons = await Lesson.find({ _id: { $in: lessons } });
+      const existingLessons = await Lesson.find({ '_id': { $in: lessons } });
       if (existingLessons.length !== lessons.length) {
-        return res.status(400).json({ error: "Some lesson IDs are invalid" });
+        return res.status(400).json({ error: 'Some lesson IDs are invalid' });
       }
     }
 
@@ -20,32 +20,35 @@ const createModule = async (req, res) => {
     const savedModule = await newModule.save();
 
     // Obtener el módulo guardado y hacer populate
-    const populatedModule = await Module.findById(savedModule._id).populate({
-      path: "lessons",
-      populate: {
-        path: "questions",
+    const populatedModule = await Module.findById(savedModule._id)
+      .populate({
+        path: 'lessons',
         populate: {
-          path: "answers",
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
         },
-      },
-    });
+      });
     res.status(201).json(populatedModule);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
+// Get all modules
 const getAllModules = async (req, res) => {
   try {
-    const modules = await Module.find().populate({
-      path: "lessons",
-      populate: {
-        path: "questions",
+    const modules = await Module.find()
+      .populate({
+        path: 'lessons',
         populate: {
-          path: "answers",
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
         },
-      },
-    });
+      });
     res.status(200).json(modules);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -56,17 +59,18 @@ const getAllModules = async (req, res) => {
 const getModuleById = async (req, res) => {
   try {
     const { id } = req.params;
-    const module = await Module.findById(id).populate({
-      path: "lessons",
-      populate: {
-        path: "questions",
+    const module = await Module.findById(id)
+      .populate({
+        path: 'lessons',
         populate: {
-          path: "answers",
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
         },
-      },
-    });
+      });
     if (!module) {
-      return res.status(404).json({ error: "Module not found" });
+      return res.status(404).json({ error: 'Module not found' });
     }
     res.status(200).json(module);
   } catch (error) {
@@ -82,28 +86,25 @@ const updateModuleById = async (req, res) => {
     // Verifica si todas las lecciones proporcionadas existen
     if (lessons) {
       if (Array.isArray(lessons)) {
-        const existingLessons = await Lesson.find({ _id: { $in: lessons } });
+        const existingLessons = await Lesson.find({ '_id': { $in: lessons } });
         if (existingLessons.length !== lessons.length) {
-          return res.status(400).json({ error: "Some lesson IDs are invalid" });
+          return res.status(400).json({ error: 'Some lesson IDs are invalid' });
         }
       }
     }
 
-    const updatedModule = await Module.findByIdAndUpdate(
-      id,
-      { name, video, text, code, quizzes, lessons },
-      { new: true }
-    ).populate({
-      path: "lessons",
-      populate: {
-        path: "questions",
+    const updatedModule = await Module.findByIdAndUpdate(id, { name, video, text, code, quizzes, lessons }, { new: true })
+      .populate({
+        path: 'lessons',
         populate: {
-          path: "answers",
+          path: 'questions',
+          populate: {
+            path: 'answers',
+          },
         },
-      },
-    });
+      });
     if (!updatedModule) {
-      return res.status(404).json({ error: "Module not found" });
+      return res.status(404).json({ error: 'Module not found' });
     }
     res.status(200).json(updatedModule);
   } catch (error) {
@@ -117,13 +118,15 @@ const deleteModuleById = async (req, res) => {
     const { id } = req.body;
     const deletedModule = await Module.findByIdAndDelete(id);
     if (!deletedModule) {
-      return res.status(404).json({ error: "Module not found" });
+      return res.status(404).json({ error: 'Module not found' });
     }
-    res.status(200).json({ message: "Module deleted successfully" });
+    res.status(200).json({ message: 'Module deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 module.exports = {
   createModule,
@@ -131,4 +134,6 @@ module.exports = {
   getModuleById,
   updateModuleById,
   deleteModuleById,
+
 };
+
