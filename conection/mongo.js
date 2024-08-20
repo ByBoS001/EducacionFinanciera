@@ -4,16 +4,17 @@ require('dotenv').config(); // Asegúrate de tener dotenv instalado para usar va
 // Definir la función de conexión a la base de datos
 const connectToDatabase = async () => {
     try {
-        const dbURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/educacionfinanciera'; // Usa la variable de entorno o la URI local por defecto
-        await mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
+        const dbURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/'; // Usa la variable de entorno o la URI local por defecto
+        await mongoose.connect(dbURI); // Elimina las opciones obsoletas
         console.log('¡Conexión a la base de datos establecida correctamente!');
     } catch (error) {
         console.error('Error de conexión a la base de datos:', error);
     }
 };
 
-// Exportar la función para usarla en otros archivos
 module.exports = connectToDatabase;
+
+
 
 const nodemailer = require("nodemailer");
 console.log("Nodemailer importado: ", nodemailer);
