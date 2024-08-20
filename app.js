@@ -27,6 +27,7 @@ const commentRoutes = require('./routes/comment');
 const assessmentRoutes = require('./routes/assessment');
 const recuperacion = require('./routes/recuperacion');
 const loginRoute = require('./routes/login');
+const userAnswerRoutes = require('./routes/userAnswer');
 
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
@@ -67,6 +68,7 @@ app.use('/comments', commentRoutes);
 app.use('/assessments', assessmentRoutes);
 app.use('/recuperacion', recuperacion);
 app.use('/login', loginRoute);
+app.use('/useranswers', userAnswerRoutes);
 
 //app.use('/auth', loginRoute); 
 // catch 404 and forward to error handler

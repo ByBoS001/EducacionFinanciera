@@ -6,7 +6,7 @@ const lessonSchema = new mongoose.Schema({
     required: true
   },
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
-  module: { type: mongoose.Schema.Types.ObjectId, ref: 'Module' },
+  module: { type: mongoose.Schema.Types.ObjectId, ref: 'Module' }, 
 },{
   strictPopulate: false,  // Permite poblar campos que no están en el esquema
 });

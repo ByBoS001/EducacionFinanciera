@@ -1,4 +1,4 @@
-const Answer = require('../models/answerModel');
+const Answer = require("../models/answerModel");
 
 // Create a new answer
 const createAnswer = async (req, res) => {
@@ -15,7 +15,7 @@ const createAnswer = async (req, res) => {
 // Get all answers
 const getAllAnswers = async (req, res) => {
   try {
-    const answers = await Answer.find().populate('question');
+    const answers = await Answer.find().populate("question");
     res.status(200).json(answers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -23,15 +23,29 @@ const getAllAnswers = async (req, res) => {
 };
 
 // Get an answer by ID
-const getAnswerById = async (req, res) => {
+const getAnswersByQuestionId = async (req, res) => {
   try {
-    const { id } = req.body;
-    const answer = await Answer.findById(id).populate('question');
-    if (!answer) {
-      return res.status(404).json({ error: 'Answer not found' });
+    const { id } = req.params;
+
+    // Verifica si el ID está presente
+    if (!id) {
+      return res.status(400).json({ error: "Question ID is required" });
     }
-    res.status(200).json(answer);
+
+    // Busca respuestas que correspondan al ID de la pregunta
+    const answers = await Answer.find({ question: id }).populate("question");
+
+    // Verifica si se encontraron respuestas
+    if (!answers || answers.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No answers found for this question" });
+    }
+
+    // Devuelve las respuestas encontradas
+    res.status(200).json(answers);
   } catch (error) {
+    // Maneja los errores
     res.status(500).json({ error: error.message });
   }
 };
@@ -40,9 +54,13 @@ const getAnswerById = async (req, res) => {
 const updateAnswerById = async (req, res) => {
   try {
     const { id, name, isCorrect, question } = req.body;
-    const updatedAnswer = await Answer.findByIdAndUpdate(id, { name, isCorrect, question }, { new: true }).populate('question');
+    const updatedAnswer = await Answer.findByIdAndUpdate(
+      id,
+      { name, isCorrect, question },
+      { new: true }
+    ).populate("question");
     if (!updatedAnswer) {
-      return res.status(404).json({ error: 'Answer not found' });
+      return res.status(404).json({ error: "Answer not found" });
     }
     res.status(200).json(updatedAnswer);
   } catch (error) {
@@ -56,9 +74,9 @@ const deleteAnswerById = async (req, res) => {
     const { id } = req.body;
     const deletedAnswer = await Answer.findByIdAndDelete(id);
     if (!deletedAnswer) {
-      return res.status(404).json({ error: 'Answer not found' });
+      return res.status(404).json({ error: "Answer not found" });
     }
-    res.status(200).json({ message: 'Answer deleted successfully' });
+    res.status(200).json({ message: "Answer deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -67,7 +85,7 @@ const deleteAnswerById = async (req, res) => {
 module.exports = {
   createAnswer,
   getAllAnswers,
-  getAnswerById,
+  getAnswersByQuestionId,
   updateAnswerById,
-  deleteAnswerById
+  deleteAnswerById,
 };

@@ -3,16 +3,15 @@ const router = express.Router();
 const {
   createQuestion,
   getAllQuestions,
-  getQuestionById,
+  getQuestionsByLesson,
   updateQuestionById,
   deleteQuestionById,
-  getQuestionsByLessonId
+  
 } = require('../controllers/questionController');
 
 router.post('/createquestion', createQuestion);
 router.post('/get-all-questions', getAllQuestions);
-router.post('/get-question-by-ids', getQuestionById);
-router.post('/get-question-by-id', getQuestionsByLessonId);
+router.post('/question/:id', getQuestionsByLesson);
 router.post('/update-question-by-id', updateQuestionById);
 router.post('/delete-question-by-id', deleteQuestionById);
 

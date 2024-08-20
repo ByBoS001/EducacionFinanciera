@@ -7,7 +7,7 @@ const questionSchema = new mongoose.Schema(
       required: true,
     },
     answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }], // Referencia al modelo Answer
-    lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }, // Referencia al modelo Lesson
+    lessons: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }, // Referencia al modelo Lesson
   },
   {
     strictPopulate: false, // Permite poblar campos que no están en el esquema
